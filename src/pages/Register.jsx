@@ -1,6 +1,45 @@
-import { React } from 'react'
+import  React, { useEffect, useState }  from 'react'
 
 function Register() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+
+    // Load users from localStorage
+    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Optional: prevent duplicate emails
+    const isEmailExist = storedUsers.some(
+      (user) => user.email === form.email
+    );
+    if (isEmailExist) {
+      setMessage("Email already registered!");
+      return;
+    }
+
+    // Save new user
+    storedUsers.push(form);
+    localStorage.setItem("users", JSON.stringify(storedUsers));
+
+    setMessage("Registration successful!");
+    setForm({ name: "", email: "", password: "" });
+    setTimeout(() => {
+      window.location.href = "/"; // redirect after a short delay
+    }, 1000);
+
+  };
+  
     return (
         <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-900">
         <div className="bg-white rounded-lg shadow-lg px-6 py-12 w-full max-w-sm">
@@ -9,7 +48,7 @@ function Register() {
             <h2 className="mt-6 text-2xl font-bold text-gray-900">Registration</h2>
           </div>
 
-          <form className="mt-8 space-y-6" action="#" method="POST">
+          <form className="mt-8 space-y-6" onSubmit={handleRegister} method="POST">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Full Name
@@ -18,9 +57,11 @@ function Register() {
                 id="name"
                 name="name"
                 type="name"
+                value={form.name}
+                onChange={handleChange}
                 autoComplete="name"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
               />
             </div>
 
@@ -32,9 +73,11 @@ function Register() {
                 id="email"
                 name="email"
                 type="email"
+                value={form.email}
+                onChange={handleChange}
                 autoComplete="email"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
               />
             </div>
 
@@ -46,9 +89,11 @@ function Register() {
                 id="password"
                 name="password"
                 type="password"
+                value={form.password}
+                onChange={handleChange}
                 autoComplete="current-password"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
               />
             </div>
 
@@ -59,10 +104,12 @@ function Register() {
               <input
                 id="password_confirm"
                 name="password_confirm"
-                type="password_confirm"
+                type="password"
+                value={form.password_confirm || ""}
+                onChange={handleChange}
                 autoComplete="current-password_confirm"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
               />
             </div>
 
@@ -76,6 +123,7 @@ function Register() {
             </div>
           </form>
         </div>
+        {/* {message && <p>{message}</p>} */}
       </div>
     )
 }
