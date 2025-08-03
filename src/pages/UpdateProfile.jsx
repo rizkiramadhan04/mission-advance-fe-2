@@ -1,15 +1,27 @@
 // src/pages/UpdateProfile.js
 import React, { useState, useEffect } from 'react';
 
+import Logo from '../assets/images/Logo.png';
+import GoogleLogo from '../assets/images/google.png';
+import BgImage from '../assets/images/image-login.jpeg';
+
 function UpdateProfile() {
-  const [form, setForm] = useState({ name: '', email: '' });
+  const [form, setForm] = useState({ 
+    username: "", 
+    password: "", 
+    password_confirm: "" 
+  });
   const [editIndex, setEditIndex] = useState(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('editUser'));
-    const index = localStorage.getItem('editIndex');
+    const storedUser = JSON.parse(localStorage.getItem("editUser"));
+    const index = localStorage.getItem("editIndex");
     if (storedUser && index !== null) {
-      setForm(storedUser);
+      setForm({
+        username: storedUser.username || "",
+        password: storedUser.password || "",
+        password_confirm: storedUser.password || "",
+      });
       setEditIndex(parseInt(index));
     }
   }, []);
@@ -18,82 +30,127 @@ function UpdateProfile() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = () => {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
+  const handleUpdate = (e) => {
+    e.preventDefault();
+
+    // Validasi konfirmasi password
+    if (form.password !== form.password_confirm) {
+      alert("Konfirmasi password tidak cocok!");
+      return;
+    }
+
+    const users = JSON.parse(localStorage.getItem("users")) || [];
     if (editIndex !== null) {
-      users[editIndex] = form;
-      localStorage.setItem('users', JSON.stringify(users));
-      localStorage.removeItem('editUser');
-      localStorage.removeItem('editIndex');
+      const updatedUser = {
+        username: form.username,
+        password: form.password,
+      };
+
+      // Update array users
+      users[editIndex] = updatedUser;
+      localStorage.setItem("users", JSON.stringify(users));
+
+      // Update juga data login
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+
+      // Hapus data edit sementara
+      localStorage.removeItem("editUser");
+      localStorage.removeItem("editIndex");
+
       alert("Data berhasil diperbarui!");
       window.location.href = "/";
     }
   };
 
   return (
-        <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-900">
-        <div className="bg-white rounded-lg shadow-lg px-6 py-12 w-full max-w-sm">
-          <div className="text-center">
-            {/* <img className="mx-auto h-10 w-auto" src="/logo.png" alt="Your Company" /> */}
-            <h2 className="mt-6 text-2xl font-bold text-gray-900">Registration</h2>
-          </div>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="name"
-                value={form.name}
-                onChange={handleChange}
-                autoComplete="name"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 my-4 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-              />
-            </div>
+      <div className="bg-cover" style={{ backgroundImage: `url(${BgImage})` }}>
+        <div className="flex items-center justify-center h-screen">
+          <section className="bg-black/90 w-1/3 h-auto mx-auto p-6 rounded-xl text-center">
+            <div className="grid grid-rows justify-items-center my-2.5">
+              <div className="icon">
+                <img src={Logo} className="w-32" alt="image-logo" />
+              </div>
+              <div className="head my-7">
+                <h1 className="text-3xl font-medium text-white">Update Profile</h1>
+              </div>
+              <div className="body-form grid grid-rows gap-y-4">
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                autoComplete="email"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 my-4 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-              />
-            </div>
+                <form onSubmit={handleUpdate}>
+                  <div className="form-input-items text-white text-start my-2">
+                    <label htmlFor="username" className="block text-sm/6 font-medium text-current">Username</label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-full bg-transparent pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-white-600">
+                        <input 
+                        type="text" 
+                        name="username" 
+                        id="username" 
+                        className="block min-w-80 rounded-2xl min-h-12 grow py-1.5 pr-3 pl-1 text-white text-white-900 placeholder:text-white-400 focus:outline-none sm:text-sm/6" 
+                        placeholder="Masukan username"
+                        value={form.username}
+                        onChange={handleChange}
+                        autoComplete="username"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                autoComplete="current-password"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 my-4 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-              />
-            </div>
+                  <div className="form-input-items text-white text-start my-2">
+                    <label htmlFor="password" className="block text-sm/6 font-medium text-current">Kata Sandi</label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-full bg-transparent pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-white-600">
+                        <input 
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        className="block min-w-80 rounded-2xl min-h-12 grow py-1.5 pr-3 pl-1 text-base text-white-900 placeholder:text-white-400 focus:outline-none sm:text-sm/6" 
+                        placeholder="Masukan kata sandi" 
+                        value={form.password}
+                        onChange={handleChange}
+                        autoComplete="current-password"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            <div>
-              <button
-                type="button"
-                onClick={handleUpdate}
-                className="w-full flex justify-center my-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-              >
-                Save
-              </button>
+                  <div className="form-input-items text-white text-start my-2">
+                    <label htmlFor="password_confirmation" className="block text-sm/6 font-medium text-current">Konfirmasi Kata Sandi</label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-full bg-transparent pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-white-600">
+                        <input 
+                        type="password" 
+                        name="password_confirm" 
+                        id="password_confirm" 
+                        className="block min-w-80 rounded-2xl min-h-12 grow py-1.5 pr-3 pl-1 text-base text-white-900 placeholder:text-white-400 focus:outline-none sm:text-sm/6" 
+                        placeholder="Masukan konfirmasi kata sandi"
+                        value={form.password_confirm || ""}
+                        onChange={handleChange}
+                        autoComplete="current-password_confirm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-white mt-1">
+                      <small className="text-start">
+                        Sudah punya akun? <a href="/login" className="font-bold">Masuk</a>
+                      </small>
+                    </div>
+                  </div>
+
+                  <div>
+                    <button type="submit" className="flex w-full justify-center rounded-full bg-[#3D4142] px-3 py-2.5 text-sm/6 font-semibold text-white shadow-xs hover:cursor-pointer hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white-600">Update</button>
+                  </div>
+                </form>
+
+                <small className="text-gray-400">Atau</small>
+                <div>
+                  <button type="submit" className="flex w-full justify-center rounded-full bg-transparent px-3 py-2.5 text-sm/6 font-semibold text-white shadow-xs outline-1 outline-[#E7E3FC] hover:cursor-pointer hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white-600">
+                    <img src={GoogleLogo} alt="google-icon" className="w-5 my-auto mr-5" />
+                    Daftar dengan google
+                  </button>
+                </div>
+                
+              </div>
             </div>
+          </section>
         </div>
       </div>
     )

@@ -1,8 +1,6 @@
 // src/pages/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import Logo from '../assets/images/Logo.png';
-import UserLogo from '../assets/images/user.png';
-import AngelDown from '../assets/images/angel-down.png';
 import ImageNetFilm1 from '../assets/images/next-film/next-film-1.png';
 import ImageNetFilm2 from '../assets/images/next-film/next-film-2.png';
 import ImageNetFilm3 from '../assets/images/next-film/next-film-3.png';
@@ -23,9 +21,17 @@ import ImageNewFilm3 from '../assets/images/new-film/new-film-3.png';
 import ImageNewFilm4 from '../assets/images/new-film/new-film-4.png';
 import ImageNewFilm5 from '../assets/images/new-film/new-film-5.png';
 import ImagHero from '../assets/images/hero_image.png';
+import ProfileDropdown from '../components/DropdownPorfile';
 
 
 function Dashboard() {
+  useEffect(() => {
+    const user = localStorage.getItem("loggedInUser");
+    if (!user) {
+        window.location.href = "/login";
+    }
+  }, []);
+
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -61,12 +67,13 @@ function Dashboard() {
                 <a href="#" className="text-sm font-semibold text-white">Daftar Saya</a>
             </div>
             <div className="hidden lg:flex items-center space-x-3">
-                <img src={UserLogo} className="w-7 rounded-full" />
-                <img src={AngelDown} className="w-3" />
+                {/* <img src={UserLogo} className="w-7 rounded-full" />
+                <img src={AngelDown} className="w-3" /> */}
+                <ProfileDropdown />
             </div>
             <button id="menu-toggle" className="lg:hidden text-white focus:outline-none">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path>
                 </svg>
             </button>
         </nav>
