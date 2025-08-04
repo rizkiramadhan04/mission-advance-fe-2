@@ -61,6 +61,7 @@ export default function DropdownProfile() {
 
       // hapus juga loggedInUser
       localStorage.removeItem("loggedInUser");
+      localStorage.removeItem("editUser");
       alert("Akun berhasil dihapus");
       window.location.href = "/login";
     }
