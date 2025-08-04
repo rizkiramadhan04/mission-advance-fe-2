@@ -14,6 +14,7 @@ export default function DropdownProfile() {
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("editUser");
     window.location.href = "/";
   };
 
