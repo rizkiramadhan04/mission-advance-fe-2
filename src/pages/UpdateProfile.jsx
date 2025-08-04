@@ -6,6 +6,13 @@ import GoogleLogo from '../assets/images/google.png';
 import BgImage from '../assets/images/image-login.jpeg';
 
 function UpdateProfile() {
+  useEffect(() => {
+      const user = localStorage.getItem("loggedInUser");
+      if (!user) {
+          window.location.href = "/login";
+      }
+    }, []);
+    
   const [form, setForm] = useState({ 
     username: "", 
     password: "", 
