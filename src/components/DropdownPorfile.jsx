@@ -19,16 +19,51 @@ export default function DropdownProfile() {
 
   const handleEditData = () => {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const users = JSON.parse(localStorage.getItem("users")) || [];
 
     if (loggedInUser) {
+      // cari index user di localStorage
+      const index = users.findIndex(
+        (u) =>
+          u.username === loggedInUser.username &&
+          u.password === loggedInUser.password
+      );
+
+      if (index !== -1) {
         localStorage.setItem("editUser", JSON.stringify(loggedInUser));
-        localStorage.setItem("editIndex", 0); // atau index sesuai kebutuhan
-        window.location.href = "/edit"; // arahkan ke halaman edit
-    } else {
+        localStorage.setItem("editIndex", index);
+        window.location.href = "/update-profile";
+      } else {
         alert("Data user tidak ditemukan");
+      }
+    } else {
+      alert("Data user tidak ditemukan");
+    }
+  };
+
+  const handleDelete = () => {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (!loggedInUser) {
+      alert("Data user tidak ditemukan");
+      return;
     }
 
-    window.location.href = "/update-profile";
+    if (window.confirm("Hapus user ini?")) {
+      const updatedUsers = users.filter(
+        (u) =>
+          u.username !== loggedInUser.username ||
+          u.password !== loggedInUser.password
+      );
+
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      // hapus juga loggedInUser
+      localStorage.removeItem("loggedInUser");
+      alert("Akun berhasil dihapus");
+      window.location.href = "/login";
+    }
   };
 
   // Tutup menu jika klik di luar
@@ -39,7 +74,8 @@ export default function DropdownProfile() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -66,7 +102,13 @@ export default function DropdownProfile() {
               onClick={handleEditData}
               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
-              Edit Data
+              Edit Profile
+            </button>
+            <button
+              onClick={handleDelete}
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white"
+            >
+              Delete Profile
             </button>
             <button
               onClick={handleLogout}
