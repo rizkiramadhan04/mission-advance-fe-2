@@ -6,6 +6,8 @@ import Logo from '../assets/images/Logo.png';
 import GoogleLogo from '../assets/images/google.png';
 import BgImage from '../assets/images/image-login.jpeg';
 
+const API_URL = import.meta.env.VITE_API_URL + "/users";
+
 function UpdateProfile() {
   const [form, setForm] = useState({
     username: "",
@@ -53,7 +55,7 @@ function UpdateProfile() {
       };
 
       // Kirim update ke server
-      await axios.put(`${import.meta.env.VITE_API_URL}/users/${userId}`, updatedUser);
+      await axios.put(`${API_URL}/${userId}`, updatedUser);
 
       // Simpan ke localStorage sebagai user yang sudah login
       localStorage.setItem("loggedInUser", JSON.stringify({ ...updatedUser, id: userId }));
