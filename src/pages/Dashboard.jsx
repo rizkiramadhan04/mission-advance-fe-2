@@ -1,5 +1,5 @@
 // src/pages/Dashboard.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Logo from '../assets/images/Logo.png';
 import ImageNetFilm1 from '../assets/images/next-film/next-film-1.png';
 import ImageNetFilm2 from '../assets/images/next-film/next-film-2.png';
@@ -32,27 +32,9 @@ function Dashboard() {
     }
   }, []);
 
-  const [users, setUsers] = useState([]);
-
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('users')) || [];
-    setUsers(data);
+        JSON.parse(localStorage.getItem('users')) || [];
   }, []);
-
-  const handleEdit = (index) => {
-    const selectedUser = users[index];
-    localStorage.setItem('editUser', JSON.stringify(selectedUser));
-    localStorage.setItem('editIndex', index);
-    window.location.href = "/update-profile";
-  };
-
-  const handleDelete = (index) => {
-    if (window.confirm("Hapus user ini?")) {
-      const filtered = users.filter((_, i) => i !== index);
-      setUsers(filtered);
-      localStorage.setItem('users', JSON.stringify(filtered));
-    }
-  };
 
   return (
     <>

@@ -1,10 +1,14 @@
-import { React, useState } from 'react'
+import { React, useState } from 'react';
+import axios from "axios";
 
 import Logo from '../assets/images/Logo.png';
 import GoogleLogo from '../assets/images/google.png';
 import BgImage from '../assets/images/image-login.jpeg';
 
+const API_URL = import.meta.env.VITE_API_URL + "/users";
+
 function Login() {
+
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -15,33 +19,41 @@ function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Ambil data users dari localStorage
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      const response = await axios.get(API_URL);
+      const usersObject = response.data;
 
-    // Cari user yang sesuai
-    const user = storedUsers.find(
-      (u) =>
-        u.username === form.username &&
-        u.password === form.password
-    );
+      if (!usersObject) {
+        setMessage("Data user kosong.");
+        return;
+      }
 
-    if (!user) {
-      setMessage("Username atau password salah!");
-      return;
+      const usersArray = Object.values(usersObject);
+      const user = usersArray.find(
+        (u) =>
+          u.username === form.username &&
+          u.password === form.password
+      );
+
+      if (!user) {
+        setMessage("Username atau password salah!");
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+      localStorage.setItem("users", JSON.stringify(user));
+      setMessage("Login berhasil! Mengalihkan...");
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (error) {
+      console.error("Gagal login:", error);
+      setMessage("Terjadi kesalahan saat login.");
     }
-
-    // Simpan user yang login
-    localStorage.setItem("loggedInUser", JSON.stringify(user));
-
-    setMessage("Login berhasil! Mengalihkan...");
-
-    // Redirect ke dashboard setelah 1 detik
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 1000);
   };
 
     return (

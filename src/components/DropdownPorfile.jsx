@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import axios from 'axios';
 
 import UserLogo from '../assets/images/user.png';
 import AngelDown from '../assets/images/angel-down.png';
@@ -8,7 +9,7 @@ export default function DropdownProfile() {
   const menuRef = useRef(null);
 
   const toggleMenu = (e) => {
-    e.preventDefault(); // mencegah reload halaman
+    e.preventDefault();
     setOpen(!open);
   };
 
@@ -20,55 +21,40 @@ export default function DropdownProfile() {
 
   const handleEditData = () => {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    if (loggedInUser) {
-      // cari index user di localStorage
-      const index = users.findIndex(
-        (u) =>
-          u.username === loggedInUser.username &&
-          u.password === loggedInUser.password
-      );
-
-      if (index !== -1) {
-        localStorage.setItem("editUser", JSON.stringify(loggedInUser));
-        localStorage.setItem("editIndex", index);
-        window.location.href = "/update-profile";
-      } else {
-        alert("Data user tidak ditemukan");
-      }
+    if (loggedInUser && loggedInUser.id) {
+      localStorage.setItem("editUser", JSON.stringify(loggedInUser));
+      window.location.href = "/update-profile";
     } else {
       alert("Data user tidak ditemukan");
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (!loggedInUser) {
+    if (!loggedInUser || !loggedInUser.id) {
       alert("Data user tidak ditemukan");
       return;
     }
 
-    if (window.confirm("Hapus user ini?")) {
-      const updatedUsers = users.filter(
-        (u) =>
-          u.username !== loggedInUser.username ||
-          u.password !== loggedInUser.password
-      );
+    const confirmDelete = window.confirm("Hapus user ini?");
+    if (!confirmDelete) return;
 
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/users/${loggedInUser.id}`);
 
-      // hapus juga loggedInUser
       localStorage.removeItem("loggedInUser");
       localStorage.removeItem("editUser");
+
       alert("Akun berhasil dihapus");
       window.location.href = "/login";
+    } catch (error) {
+      console.error("Gagal hapus user:", error);
+      alert("Terjadi kesalahan saat menghapus akun");
     }
   };
 
-  // Tutup menu jika klik di luar
+  // Tutup dropdown saat klik di luar
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -76,8 +62,7 @@ export default function DropdownProfile() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (

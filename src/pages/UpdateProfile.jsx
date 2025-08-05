@@ -1,71 +1,69 @@
 // src/pages/UpdateProfile.js
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import Logo from '../assets/images/Logo.png';
 import GoogleLogo from '../assets/images/google.png';
 import BgImage from '../assets/images/image-login.jpeg';
 
 function UpdateProfile() {
-  useEffect(() => {
-      const user = localStorage.getItem("loggedInUser");
-      if (!user) {
-          window.location.href = "/login";
-      }
-    }, []);
-    
-  const [form, setForm] = useState({ 
-    username: "", 
-    password: "", 
-    password_confirm: "" 
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    password_confirm: ""
   });
-  const [editIndex, setEditIndex] = useState(null);
 
+  const [userId, setUserId] = useState(null);
+
+  // Ambil data user dari localStorage saat pertama render
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("editUser"));
-    const index = localStorage.getItem("editIndex");
-    if (storedUser && index !== null) {
-      setForm({
-        username: storedUser.username || "",
-        password: storedUser.password || "",
-        password_confirm: storedUser.password || "",
-      });
-      setEditIndex(parseInt(index));
+
+    if (!storedUser || !storedUser.id) {
+      alert("Data user tidak ditemukan");
+      window.location.href = "/login";
+      return;
     }
+
+    setUserId(storedUser.id);
+
+    setForm({
+      username: storedUser.username || "",
+      password: storedUser.password || "",
+      password_confirm: storedUser.password || "",
+    });
   }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    // Validasi konfirmasi password
     if (form.password !== form.password_confirm) {
       alert("Konfirmasi password tidak cocok!");
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    if (editIndex !== null) {
+    try {
       const updatedUser = {
         username: form.username,
         password: form.password,
       };
 
-      // Update array users
-      users[editIndex] = updatedUser;
-      localStorage.setItem("users", JSON.stringify(users));
+      // Kirim update ke server
+      await axios.put(`${import.meta.env.VITE_API_URL}/users/${userId}`, updatedUser);
 
-      // Update juga data login
-      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-
-      // Hapus data edit sementara
+      // Simpan ke localStorage sebagai user yang sudah login
+      localStorage.setItem("loggedInUser", JSON.stringify({ ...updatedUser, id: userId }));
       localStorage.removeItem("editUser");
-      localStorage.removeItem("editIndex");
 
       alert("Data berhasil diperbarui!");
       window.location.href = "/";
+    } catch (error) {
+      console.error("Gagal update user:", error);
+      alert("Gagal memperbarui data");
     }
   };
 

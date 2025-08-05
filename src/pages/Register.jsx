@@ -1,8 +1,11 @@
-import  React, { useEffect, useState }  from 'react'
+import  React, { useState }  from 'react'
+import axios from "axios";
 
 import Logo from '../assets/images/Logo.png';
 import GoogleLogo from '../assets/images/google.png';
 import BgImage from '../assets/images/image-login.jpeg';
+
+const API_URL = import.meta.env.VITE_API_URL + "/users";
 
 function Register() {
   const [form, setForm] = useState({
@@ -18,33 +21,54 @@ function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Load users from localStorage
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      // Ambil data dari localStorage dan pastikan array
+      const usersFromLocal = localStorage.getItem("users");
+      const storedUsers = Array.isArray(JSON.parse(usersFromLocal))
+        ? JSON.parse(usersFromLocal)
+        : [];
 
-    // Optional: prevent duplicate emails
-    const isEmailExist = storedUsers.some(
-      (user) => user.username === form.username
-    );
-    if (isEmailExist) {
-      setMessage("Username already registered!");
-      return;
+      // Cek duplikat username
+      const isUsernameExist = storedUsers.some(
+        (user) => user.username === form.username
+      );
+      if (isUsernameExist) {
+        setMessage("Username already registered!");
+        return;
+      }
+
+      // Simpan ke Firebase (gunakan .json di akhir URL jika pakai Realtime DB)
+      const response = await axios.post(API_URL, {
+        ...form,
+        createdAt: new Date().toISOString(),
+      });
+
+      const newUser = { ...form, createdAt: new Date().toISOString() };
+
+      // Simpan juga ke localStorage (opsional)
+      const updatedUsers = [...storedUsers, newUser];
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      setMessage("Registration successful!");
+      setForm({
+        username: "",
+        email: "",
+        password: "",
+        password_confirm: "",
+      });
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (error) {
+      console.error("Registration failed", error);
+      setMessage("Registration failed. Please try again.");
     }
-
-    // Save new user
-    storedUsers.push(form);
-    localStorage.setItem("users", JSON.stringify(storedUsers));
-
-    setMessage("Registration successful!");
-    setForm({ username: "", email: "", password: "", password_confirm: "" });
-    setTimeout(() => {
-      window.location.href = "/"; // redirect after a short delay
-    }, 1000);
-
   };
-  
+
     return (
       <div className="bg-cover" style={{ backgroundImage: `url(${BgImage})` }}>
         <div className="flex items-center justify-center h-screen">
@@ -73,6 +97,24 @@ function Register() {
                         value={form.username}
                         onChange={handleChange}
                         autoComplete="username"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-input-items text-white text-start my-2">
+                    <label htmlFor="email" className="block text-sm/6 font-medium text-current">Email</label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-full bg-transparent pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-white-600">
+                        <input 
+                        type="text" 
+                        name="email" 
+                        id="email" 
+                        className="block min-w-80 rounded-2xl min-h-12 grow py-1.5 pr-3 pl-1 text-white text-white-900 placeholder:text-white-400 focus:outline-none sm:text-sm/6" 
+                        placeholder="Masukan eEmail"
+                        value={form.email}
+                        onChange={handleChange}
+                        autoComplete="email"
                         />
                       </div>
                     </div>
