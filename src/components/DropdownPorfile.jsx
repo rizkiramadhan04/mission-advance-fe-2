@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, setUser } from '../redux/userSlice';
 
 import UserLogo from '../assets/images/user.png';
 import AngelDown from '../assets/images/angel-down.png';
@@ -7,6 +9,8 @@ import AngelDown from '../assets/images/angel-down.png';
 export default function DropdownProfile() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user.user);
 
   const toggleMenu = (e) => {
     e.preventDefault();
@@ -14,15 +18,15 @@ export default function DropdownProfile() {
   };
 
   const handleLogout = () => {
+    dispatch(logout());
     localStorage.removeItem("loggedInUser");
     localStorage.removeItem("editUser");
     window.location.href = "/";
   };
 
   const handleEditData = () => {
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (loggedInUser && loggedInUser.id) {
-      localStorage.setItem("editUser", JSON.stringify(loggedInUser));
+    if (user && user.id) {
+      localStorage.setItem("editUser", JSON.stringify(user));
       window.location.href = "/update-profile";
     } else {
       alert("Data user tidak ditemukan");
@@ -30,9 +34,7 @@ export default function DropdownProfile() {
   };
 
   const handleDelete = async () => {
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-
-    if (!loggedInUser || !loggedInUser.id) {
+    if (!user || !user.id) {
       alert("Data user tidak ditemukan");
       return;
     }
@@ -41,8 +43,9 @@ export default function DropdownProfile() {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/users/${loggedInUser.id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/users/${user.id}`);
 
+      dispatch(logout());
       localStorage.removeItem("loggedInUser");
       localStorage.removeItem("editUser");
 

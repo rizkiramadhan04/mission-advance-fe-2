@@ -31,12 +31,12 @@ function Dashboard() {
 
   console.log("data user : " + user);
 
-//   useEffect(() => {
-//     // Jika user tidak ada, redirect ke login
-//     if (!user) {
-//       window.location.href = "/login";
-//     }
-//   }, [user]);
+  useEffect(() => {
+    // Jika user tidak ada, redirect ke login
+    if (!user) {
+      window.location.href = "/login";
+    }
+  }, [user]);
 
   useEffect(() => {
         JSON.parse(localStorage.getItem('users')) || [];
