@@ -1,6 +1,9 @@
 // src/pages/UpdateProfile.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUser as setUserRedux } from '../redux/userSlice';
+import { UserContext } from '../context/UserContext';
 
 import Logo from '../assets/images/Logo.png';
 import GoogleLogo from '../assets/images/google.png';
@@ -16,6 +19,9 @@ function UpdateProfile() {
   });
 
   const [userId, setUserId] = useState(null);
+
+  const dispatch = useDispatch();
+  const { setUser } = useContext(UserContext);
 
   // Ambil data user dari localStorage saat pertama render
   useEffect(() => {
@@ -50,6 +56,7 @@ function UpdateProfile() {
 
     try {
       const updatedUser = {
+        id: userId,
         username: form.username,
         password: form.password,
       };
@@ -58,8 +65,12 @@ function UpdateProfile() {
       await axios.put(`${API_URL}/${userId}`, updatedUser);
 
       // Simpan ke localStorage sebagai user yang sudah login
-      localStorage.setItem("loggedInUser", JSON.stringify({ ...updatedUser, id: userId }));
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
       localStorage.removeItem("editUser");
+
+      // Simpan ke Redux dan Context
+      dispatch(setUserRedux(updatedUser));
+      setUser(updatedUser);
 
       alert("Data berhasil diperbarui!");
       window.location.href = "/";

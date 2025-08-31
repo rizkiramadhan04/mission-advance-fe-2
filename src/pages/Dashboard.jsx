@@ -1,5 +1,6 @@
 // src/pages/Dashboard.js
 import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux'; // Tambahkan ini
 import Logo from '../assets/images/Logo.png';
 import ImageNetFilm1 from '../assets/images/next-film/next-film-1.png';
 import ImageNetFilm2 from '../assets/images/next-film/next-film-2.png';
@@ -25,12 +26,17 @@ import ProfileDropdown from '../components/DropdownPorfile';
 
 
 function Dashboard() {
-  useEffect(() => {
-    const user = localStorage.getItem("loggedInUser");
-    if (!user) {
-        window.location.href = "/login";
-    }
-  }, []);
+  // Ambil user dari Redux
+  const user = useSelector(state => state.user.user);
+
+  console.log("data user : " + user);
+
+//   useEffect(() => {
+//     // Jika user tidak ada, redirect ke login
+//     if (!user) {
+//       window.location.href = "/login";
+//     }
+//   }, [user]);
 
   useEffect(() => {
         JSON.parse(localStorage.getItem('users')) || [];
@@ -49,9 +55,11 @@ function Dashboard() {
                 <a href="#" className="text-sm font-semibold text-white">Daftar Saya</a>
             </div>
             <div className="hidden lg:flex items-center space-x-3">
-                {/* <img src={UserLogo} className="w-7 rounded-full" />
-                <img src={AngelDown} className="w-3" /> */}
                 <ProfileDropdown />
+                {/* Tampilkan username jika login */}
+                {user && (
+                  <span className="ml-4 text-white font-bold">Hi, {user.username}</span>
+                )}
             </div>
             <button id="menu-toggle" className="lg:hidden text-white focus:outline-none">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
